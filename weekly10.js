@@ -14,6 +14,8 @@ const clock = new THREE.Clock();
 
 const objects = [];
 
+const raycaster = new THREE.Raycaster();
+
 //Texture Loader + Textures
 
 //Wood Gate + Crates: 
@@ -98,6 +100,25 @@ const camera = new THREE.PerspectiveCamera(
 );
 
 camera.position.set(20, 15, 20);
+
+
+//Load Audio
+const listener = new THREE.AudioListener();
+
+camera.add(listener);
+
+const interactSound = new THREE.Audio(listener);
+
+const audioLoader = new THREE.AudioLoader();
+
+audioLoader.load(
+    "audio/donk.mp3",
+    function(buffer)
+   {
+      interactSound.setBuffer( buffer );
+      interactSound.setVolume( 0.5);
+   }
+);
 
 // ----------------------------------------------------
 // Renderer
@@ -268,15 +289,16 @@ loader.load('models/fountain.glb', function(gltf) {
     objects.push(fountain);
 });
 
+let donk;
 //donkey
 //poly pizza https://poly.pizza/m/qmX6nhnvp7
 loader.load('models/donkey.glb', function(gltf) {
-    const donkey = gltf.scene;
-    donkey.position.set(13, 0, 0);
-    donkey.scale.set(1, 1, 1);
-    donkey.rotation.y = Math.PI * 3 / 2;
-    scene.add(donkey);
-    objects.push(donkey);
+    donk = gltf.scene;
+    donk.position.set(13, 0, 0);
+    donk.scale.set(1, 1, 1);
+    donk.rotation.y = Math.PI * 3 / 2;
+    scene.add(donk);
+    objects.push(donk);
 
     //animations
     mixer = new THREE.AnimationMixer(gltf.scene);
@@ -392,6 +414,43 @@ window.addEventListener("keyup", (e) => {
     keys[e.key] = false;
 });
 
+//Interaction with Donkey Functions
+const cube = new THREE.Mesh(
+    new THREE.BoxGeometry(4, 2, 2),
+    new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0,
+        depthWrite: false
+    })
+);
+cube.position.set(12, 0, 0);
+scene.add(cube);
+
+function checkInteraction(){
+
+    const direction = new THREE.Vector3(0,0,1).applyQuaternion(player.quaternion);
+
+    raycaster.set(player.position, direction);
+    raycaster.far = 4;      
+
+    const hits = raycaster.intersectObject(cube);
+
+    if(hits.length > 0){
+        hitDonk();
+    }
+}
+
+//Audio from Pixabay freesound_community
+function hitDonk(){
+    setMessage("Why would you hit a poor defenseless creature? You evil, evil man.");
+    interactSound.play();
+
+}
+
+function setMessage(message){
+
+}
 
 // ----------------------------------------------------
 // Animation Loop
@@ -482,8 +541,11 @@ function animate() {
     if (playerMixer) {
         playerMixer.update(delta);
     }
-
-    //cube.rotation.y += 0.01;
+    
+    //check for interaction with donkey
+    if(keys["e"]){
+        checkInteraction();
+    }
 
     controls.update();
 
