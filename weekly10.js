@@ -443,13 +443,15 @@ function checkInteraction(){
 
 //Audio from Pixabay freesound_community
 function hitDonk(){
-    setMessage("Why would you hit a poor defenseless creature? You evil, evil man.");
+    setMessage("It's a donkey. His name is Donk.");
     interactSound.play();
-
 }
 
-function setMessage(message){
-
+function setMessage(text)
+{
+    document.getElementById(
+    "message"
+    ).innerHTML = text;
 }
 
 // ----------------------------------------------------
