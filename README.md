@@ -1,1 +1,3 @@
-# WeeklyChallenge10_CPSC444_Lincicum
+# WeeklyChallenge 10
+Morgan Lincicum
+
